@@ -1,0 +1,7 @@
+/gna_*.o
+/gna.o
+/gna.mod*
+/gna.ko
+/Module.symvers
+/modules.order
+/.*.cmd

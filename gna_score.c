@@ -14,7 +14,7 @@
 
 #include <uapi/drm/gna_drm.h>
 
-#include "../drm_internal.h"
+#include "drm_internal.h"
 
 #include "gna_device.h"
 #include "gna_gem.h"

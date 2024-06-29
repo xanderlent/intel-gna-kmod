@@ -7,7 +7,7 @@
 #include <linux/const.h>
 #include <linux/types.h>
 
-#include "drm.h"
+#include <uapi/drm/drm.h>
 
 #define GNA_DDI_VERSION_3 3
 
