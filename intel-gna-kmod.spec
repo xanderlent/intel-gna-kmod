@@ -8,7 +8,7 @@
 Name:           intel-gna-kmod
 
 Version:        5.1
-Release:        1%{?dist}.2
+Release:        1%{?dist}.3
 Summary:        Kernel module for the Intel Gaussian & Neural Accelerator
 
 Group:          System Environment/Kernel
@@ -120,7 +120,7 @@ done
 rm -rf ${RPM_BUILD_ROOT}
 
 mkdir -p %{buildroot}/%{_includedir}/drm
-install -m 0655 include/uapi/drm/gna_drm.h %{buildroot}/%{_includedir}/drm/gna_drm.h
+install -m 0644 include/uapi/drm/gna_drm.h %{buildroot}/%{_includedir}/drm/gna_drm.h
 
 for kernel_version in %{?kernel_versions}; do
     make install DESTDIR=${RPM_BUILD_ROOT} KMODPATH=%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}
@@ -139,6 +139,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.3
+- Fix bad permissions on the installed header file
 * Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.2
 - Update headers package to install Documentation
 - Expand README.md to cover potential questions
