@@ -8,7 +8,7 @@
 Name:           intel-gna-kmod
 
 Version:        5.1
-Release:        1%{?dist}.1
+Release:        1%{?dist}.2
 Summary:        Kernel module for the Intel Gaussian & Neural Accelerator
 
 Group:          System Environment/Kernel
@@ -130,7 +130,7 @@ done
 
 
 %files -n intel-gna-headers 
-%doc README.md
+%doc README.md gna.rst
 %license COPYING LICENSES/
 %{_includedir}/drm/gna_drm.h
 
@@ -139,5 +139,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.2
+- Update headers package to install Documentation
+- Expand README.md to cover potential questions
 * Sat Jun 29 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.1
 - Initial RPM package for this out of tree module
