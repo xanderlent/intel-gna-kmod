@@ -104,6 +104,7 @@ cp -aL %{SOURCE17} include/uapi/drm
 cp -aL %{SOURCE18} LICENSES/exceptions
 cp -aL %{SOURCE19} LICENSES/preferred
 cp -aL %{SOURCE20} LICENSES/preferred
+cd ..
 
 for kernel_version in %{?kernel_versions} ; do
     cp -a intel-gna-kmod-%{version} _kmod_build_${kernel_version%%___*}
@@ -140,6 +141,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.3
+- Move up a directory during the prep phase to fix actual module build
 - Fix bad permissions on the installed header file
 * Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.2
 - Update headers package to install Documentation
