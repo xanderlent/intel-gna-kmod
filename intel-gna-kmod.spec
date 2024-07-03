@@ -8,8 +8,11 @@
 Name:           intel-gna-kmod
 
 Version:        5.1
-Release:        1%{?dist}.3
+Release:        1%{?dist}.4
 Summary:        Kernel module for the Intel Gaussian & Neural Accelerator
+
+# See: https://docs.kernel.org/kbuild/modules.html
+# Those are the upstream docs on how to build and install out of tree modules
 
 Group:          System Environment/Kernel
 
@@ -42,6 +45,7 @@ BuildRoot:      %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 BuildRequires:  kmodtool
 BuildRequires:	kernel-devel
+BuildRequires:	kernel-modules-core
 
 # Verify that the package build for all architectures.
 # In most time you should remove the Exclusive/ExcludeArch directives
@@ -56,8 +60,9 @@ ExclusiveArch:  i686 x86_64
 # we don't need it, it's only used when building for specific kernels, so comment it out
 #BuildRequires:  #{_bindir}/kmodtool
 
-#define kernels ""
-
+# Uncommenting the following defines (and adjusting them for the current kernel) will allow you to manually build for a specific kernel
+#define kernels 6.9.6-200.fc40.x86_64
+# Actually, you can just leave this one commented because it is a no-op when kernels is defined.
 #{!?kernels:BuildRequires: buildsys-build-#{repo}-kerneldevpkgs-#{?buildforkernels:#{buildforkernels}}#{!?buildforkernels:current}-#{_target_cpu} }
 
 # kmodtool does its magic here
@@ -104,6 +109,7 @@ cp -aL %{SOURCE17} include/uapi/drm
 cp -aL %{SOURCE18} LICENSES/exceptions
 cp -aL %{SOURCE19} LICENSES/preferred
 cp -aL %{SOURCE20} LICENSES/preferred
+# Moving up a directory is a horrible hack, but we'll do it
 cd ..
 
 for kernel_version in %{?kernel_versions} ; do
@@ -112,8 +118,10 @@ done
 
 
 %build
+# Moving up a directory is a horrible hack, but we'll do it
+cd ..
 for kernel_version in %{?kernel_versions}; do
-    make %{?_smp_mflags} -C "${kernel_version##*___}" SUBDIRS=${PWD}/_kmod_build_${kernel_version%%___*} modules
+    make %{?_smp_mflags} -C "${kernel_version##*___}" M=${PWD}/_kmod_build_${kernel_version%%___*} modules
 done
 
 
@@ -124,8 +132,10 @@ mkdir -p %{buildroot}/%{_includedir}/drm
 install -m 0644 include/uapi/drm/gna_drm.h %{buildroot}/%{_includedir}/drm/gna_drm.h
 
 for kernel_version in %{?kernel_versions}; do
-    make install DESTDIR=${RPM_BUILD_ROOT} KMODPATH=%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}
-    # install -D -m 755 _kmod_build_${kernel_version%%___*}/intel-gna-kmod/gna.ko  ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/gna.ko
+    mkdir -p ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}
+    make -C "${kernel_version##*___}" M=${PWD}/_kmod_build_${kernel_version%%___*} INSTALL_MOD_PATH=${RPM_BUILD_ROOT} INSTALL_MOD_DIR=%{kmodinstdir_postfix} modules_install
+    # DEPMOD creates a bunch of files for us, we'd rather not bother with them
+    rm ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/modules.*
 done
 %{?akmod_install}
 
@@ -140,6 +150,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.4
+- Moving up a directory also has to happen during the build phase
+- The make commands need to be adjusted for modern out-of-tree modules.
+- DEPMOD during modules_install to the buildroot creates a bunch of files that we don't need.
 * Sun Jun 30 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.3
 - Move up a directory during the prep phase to fix actual module build
 - Fix bad permissions on the installed header file
