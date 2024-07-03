@@ -8,7 +8,7 @@
 Name:           intel-gna-kmod
 
 Version:        5.1
-Release:        1%{?dist}.5
+Release:        1%{?dist}.6
 Summary:        Kernel module for the Intel Gaussian & Neural Accelerator
 
 # See: https://docs.kernel.org/kbuild/modules.html
@@ -134,7 +134,7 @@ install -m 0644 include/uapi/drm/gna_drm.h %{buildroot}/%{_includedir}/drm/gna_d
 for kernel_version in %{?kernel_versions}; do
     mkdir -p ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}
     make -C "${kernel_version##*___}" M=${PWD}/_kmod_build_${kernel_version%%___*} INSTALL_MOD_PATH=${RPM_BUILD_ROOT} INSTALL_MOD_DIR=%{kmodinstdir_postfix} modules_install
-    install -m 0644 gna.ko ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/gna.ko
+    install -m 0644 ${PWD}/_kmod_build_${kernel_version%%___*}/gna.ko ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/gna.ko
     # DEPMOD creates a bunch of files for us, we'd rather not bother with them
     rm ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/modules.*
 done
@@ -151,6 +151,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Jul 3 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.6
+- Whoops, tried to install from the wrong location...
 * Wed Jul 3 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.5
 - Try installing the module manually if modules_install should fail for some reason (hopefully fixes the final step in the akmods build)
 * Tue Jul 2 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.4
