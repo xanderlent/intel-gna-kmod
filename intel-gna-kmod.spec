@@ -8,7 +8,7 @@
 Name:           intel-gna-kmod
 
 Version:        5.1
-Release:        1%{?dist}.6
+Release:        1%{?dist}.7
 Summary:        Kernel module for the Intel Gaussian & Neural Accelerator
 
 # See: https://docs.kernel.org/kbuild/modules.html
@@ -61,7 +61,7 @@ ExclusiveArch:  i686 x86_64
 #BuildRequires:  #{_bindir}/kmodtool
 
 # Uncommenting the following defines (and adjusting them for the current kernel) will allow you to manually build for a specific kernel
-#define kernels 6.9.6-200.fc40.x86_64
+#define kernels 6.9.11-200.fc40.x86_64
 # Actually, you can just leave this one commented because it is a no-op when kernels is defined.
 #{!?kernels:BuildRequires: buildsys-build-#{repo}-kerneldevpkgs-#{?buildforkernels:#{buildforkernels}}#{!?buildforkernels:current}-#{_target_cpu} }
 
@@ -134,7 +134,7 @@ install -m 0644 include/uapi/drm/gna_drm.h %{buildroot}/%{_includedir}/drm/gna_d
 for kernel_version in %{?kernel_versions}; do
     mkdir -p ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}
     make -C "${kernel_version##*___}" M=${PWD}/_kmod_build_${kernel_version%%___*} INSTALL_MOD_PATH=${RPM_BUILD_ROOT} INSTALL_MOD_DIR=%{kmodinstdir_postfix} modules_install
-    install -m 0644 ${PWD}/_kmod_build_${kernel_version%%___*}/gna.ko ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/gna.ko
+    install -m 0644 ${PWD}/../_kmod_build_${kernel_version%%___*}/gna.ko ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/%{kmodinstdir_postfix}/gna.ko
     # DEPMOD creates a bunch of files for us, we'd rather not bother with them
     rm ${RPM_BUILD_ROOT}%{kmodinstdir_prefix}/${kernel_version%%___*}/modules.*
 done
@@ -151,6 +151,8 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Jul 28 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.7
+- Take another look, fix the gna.ko install path for real this time.
 * Wed Jul 3 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.6
 - Whoops, tried to install from the wrong location...
 * Wed Jul 3 2024 Alexander F. Lent <lx@xanderlent.com> - 5.1-1.5
